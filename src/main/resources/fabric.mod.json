@@ -1,0 +1,21 @@
+{
+	"schemaVersion": 1,
+	"id": "endcitydetector",
+	"version": "${version}",
+	"name": "End City Detector",
+	"description": "Alerts you with a chat message and a sound when signs of an End city appear in loaded chunks.",
+	"authors": [],
+	"license": "CC0-1.0",
+	"environment": "client",
+	"entrypoints": {
+		"client": [
+			"com.example.endcity.EndCityClient"
+		]
+	},
+	"depends": {
+		"fabricloader": ">=0.19.0",
+		"minecraft": "~26.2",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}
