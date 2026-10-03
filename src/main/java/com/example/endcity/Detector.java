@@ -3,9 +3,9 @@ package com.example.endcity;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ChunkPos;
@@ -57,7 +57,7 @@ public final class Detector {
     public static void onEntityLoad(Entity entity, Level level) {
         DetectorConfig c = DetectorConfig.get();
         if (!inScope(level)) return;
-        if (c.detectShulkers && entity.getType() == EntityType.SHULKER) {
+        if (c.detectShulkers && isShulker(entity)) {
             alert("shulker", entity.blockPosition());
         } else if (c.detectElytra && entity instanceof ItemFrame frame) {
             pending.add(new PendingFrame(frame, FRAME_CHECK_DELAY));
@@ -87,6 +87,10 @@ public final class Detector {
         if (first != null && count >= c.purpurThreshold) {
             alert("purpur", first);
         }
+    }
+
+    private static boolean isShulker(Entity entity) {
+        return BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType()).getPath().equals("shulker");
     }
 
     private static boolean isPurpur(BlockState s) {
@@ -125,7 +129,7 @@ public final class Detector {
         int dist = (int) Math.sqrt(player.blockPosition().distSqr(pos));
         Component msg = Component.translatable("endcity.alert." + kind,
                 pos.getX(), pos.getY(), pos.getZ(), dist).withStyle(ChatFormatting.LIGHT_PURPLE);
-        player.displayClientMessage(msg, false);
+        player.sendSystemMessage(msg);
         Sounds.play(c.sound, 1.0f);
     }
 
@@ -134,16 +138,16 @@ public final class Detector {
         var player = Minecraft.getInstance().player;
         if (player == null) return;
         if (found.isEmpty()) {
-            player.displayClientMessage(Component.translatable("endcity.list.empty"), false);
+            player.sendSystemMessage(Component.translatable("endcity.list.empty"));
             return;
         }
-        player.displayClientMessage(Component.translatable("endcity.list.header", found.size())
-                .withStyle(ChatFormatting.LIGHT_PURPLE), false);
+        player.sendSystemMessage(Component.translatable("endcity.list.header", found.size())
+                .withStyle(ChatFormatting.LIGHT_PURPLE));
         for (int i = 0; i < found.size(); i++) {
             BlockPos p = found.get(i);
             int dist = (int) Math.sqrt(player.blockPosition().distSqr(p));
-            player.displayClientMessage(Component.translatable("endcity.list.entry",
-                    i + 1, p.getX(), p.getY(), p.getZ(), dist), false);
+            player.sendSystemMessage(Component.translatable("endcity.list.entry",
+                    i + 1, p.getX(), p.getY(), p.getZ(), dist));
         }
     }
 }
